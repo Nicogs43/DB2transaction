@@ -3,6 +3,7 @@ Codice di partenza per transazioni concorrenti —
 Adattato da Nikolas Augsten 
  */
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +30,27 @@ public class ConcurrentTransactions {
 		// create numThreads transactions
 		TransactionOne trans1 = new TransactionOne(1 , conn);
 		TransactionTwo trans2 = new TransactionTwo(2 , conn);
+		
+		ArrayList<Runnable> trans = new ArrayList<Runnable>();
+		boolean a,b=true;
+		for (int i=0; i<numThreads; i++) {
+			if(a) {
+				trans.add(new TransactionOne(1 , conn));
+				a=false;
+			}
+			else {
+				if (b) {
+					b=false;
+					trans.add(new TransactionTwo(1 , conn));
+				}
+				else {
+					trans.add(new TransactionThree(1 , conn));
+					a=true;
+					b=true;
+				}
+			}
+			
+		}
 		
 
 		// start all transactions using a connection pool 
