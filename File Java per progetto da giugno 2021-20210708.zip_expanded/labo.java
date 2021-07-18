@@ -30,9 +30,6 @@ public static void transactionOne() {
 	} catch (SQLException e2) {
 		e2.printStackTrace();
 	}
-    // EVENTUALE VARIAZIONE SCHEMA
-     //PreparedStatement st = conn.prepareStatement("set search_path to account");
-     //st.executeUpdate();
     // INIZIALIZZAZIONE AUTOCOMMIT A FALSE PER IMPOSTARE COMPORTAMENTO TRANSAZIONALE
 	 try {
 	conn.setAutoCommit(false);  
@@ -46,26 +43,29 @@ public static void transactionOne() {
         String Name = rs.getString("Nome");
         System.out.println(codFisc + Name + "     ");
     }
+    rs.close();
     
     System.out.println("*******************************************************************");
     
     Statement st2 = conn.createStatement();
-    ResultSet rs1 = st2.executeQuery("SELECT \"Codice_fiscale\"  FROM \"Vendite\" Where \"Codice_fiscale\" like 'NI%' ");
+     rs = st2.executeQuery("SELECT \"Codice_fiscale\"  FROM \"Vendite\" Where \"Codice_fiscale\" like 'NI%' ");
     
-    while (rs1.next()) {
-        String Name = rs1.getString("Codice_fiscale");
+    while (rs.next()) {
+        String Name = rs.getString("Codice_fiscale");
         System.out.println(Name + "     ");
     }
+    rs.close();
     
     System.out.println("*******************************************************************");
     
     Statement st3 = conn.createStatement();
-    ResultSet rs3 = st3.executeQuery("SELECT \"Codice_fiscale\" FROM \"Cliente\"  where \"Nome\" like 'N%'");
+    rs = st3.executeQuery("SELECT \"Codice_fiscale\" FROM \"Cliente\"  where \"Nome\" like 'N%'");
     
-    while (rs3.next()) {
-        String Name = rs3.getString("Codice_fiscale");
+    while (rs.next()) {
+        String Name = rs.getString("Codice_fiscale");
         System.out.println(Name + "     ");
     }
+    rs.close();
     
 	// chiusura connessione
 		conn.commit();
@@ -107,14 +107,15 @@ public static void transactionTwo() {
 
 	
 	    Statement st2 = conn.createStatement();
-	    ResultSet rs1 = st2.executeQuery("Select \"Nome\",\"Codice_fiscale\" From \"Cliente\" where  \"Nome\" like 'N%' ");
+	    ResultSet rs = st2.executeQuery("Select \"Nome\",\"Codice_fiscale\" From \"Cliente\" where  \"Nome\" like 'N%' ");
 	    
-	    while (rs1.next()) {
-	        String Name = rs1.getString("Nome");
-	        String CodFisc = rs1.getString("Codice_fiscale");
+	    while (rs.next()) {
+	        String Name = rs.getString("Nome");
+	        String CodFisc = rs.getString("Codice_fiscale");
 
 	        System.out.println(Name + " " + CodFisc+ "     ");
 	    }
+	    rs.close();
 	    
 	    Statement st3 = conn.createStatement();
 	    int test = st3.executeUpdate("Delete From \"Cliente\" Where \"Codice_fiscale\" = 'GNZNCL27' ");
@@ -158,10 +159,8 @@ public static void transactionThree() {
 	    }
 	    
 	    Statement st2 = conn.createStatement();
-	    int ii = st2.executeUpdate("UPDATE \"Cliente\" Set \"Sconto\" = 30 Where \"Nome\" Like 'Nico%'");
-	    if(ii==1) {
-	    	 System.out.println("Update riuscita");
-	    }
+	    st2.executeUpdate("UPDATE \"Cliente\" Set \"Sconto\" = 30 Where \"Nome\" Like 'Nic%'");
+
 	    
 	    Statement st3 = conn.createStatement();
 	    int test = st3.executeUpdate("Delete From \"Vendite\" Where \"Codice_fiscale\" = 'GNZNCL27' ");
@@ -170,10 +169,8 @@ public static void transactionThree() {
 	    }
 
 	    Statement st4 = conn.createStatement();
-	    int iii = st4.executeUpdate("UPDATE \"Cliente\" Set \"Sconto\" = 10 Where \"Nome\" Like 'Nico%'");
-	    if(iii==1) {
-	    	 System.out.println("Update riuscita");
-	    }
+	    st4.executeUpdate("UPDATE \"Cliente\" Set \"Sconto\" = 10 Where \"Nome\" Like 'Nic%'");
+
 	conn.commit();
 	conn.close();
  }catch (SQLException e1) {
