@@ -35,38 +35,40 @@ class TransactionOne extends Thread {
 		System.out.println(
 				"+++++++++************************************************************************++++++++++++");
 		System.out.println("transaction " + id + " started");
-
+		
 		// replace this with a transaction
 		try {
 			conn.setAutoCommit(false);
-			conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 			System.out.println("Transaction " + id + " Isolation Level: " + conn.getTransactionIsolation());
 			Statement st1 = conn.createStatement();
 			ResultSet rs = st1
-					.executeQuery("SELECT \"Codice_fiscale\" , \"Nome\" FROM \"Cliente\" where \"Nome\" like 'Nico%'");
+					.executeQuery("SELECT \"Codice_fiscale\" , \"Nome\", \"Sconto\" FROM \"Cliente\" where \"Nome\" like 'Nico%'");
 
 			while (rs.next()) {
 				String codFisc = rs.getString("Codice_fiscale");
 				String Name = rs.getString("Nome");
-				System.out.println(codFisc + " " + Name + "     ");
+				int sconto = rs.getInt("Sconto");
+				System.out.println(codFisc + " " + Name + " " + sconto + " -Tipo 1 ");
 			}
 			rs.close();
 
 			Statement st2 = conn.createStatement();
-			rs = st2.executeQuery("SELECT \"Codice_fiscale\"  FROM \"Vendite\" Where \"Codice_fiscale\" like 'NI%' ");
+			rs = st2.executeQuery("SELECT \"Codice_fiscale\"   FROM \"Vendite\" Where \"Codice_fiscale\" like 'NI%' ");
 
 			while (rs.next()) {
-				String Name = rs.getString("Codice_fiscale");
-				System.out.println(Name + "     ");
+				String cod_fisc = rs.getString("Codice_fiscale");
+				System.out.println(cod_fisc + " -Tipo 1 ");
 			}
 			rs.close();
 
 			Statement st3 = conn.createStatement();
-			rs = st3.executeQuery("SELECT \"Codice_fiscale\" FROM \"Cliente\"  where \"Nome\" like 'N%'");
+			rs = st3.executeQuery("SELECT \"Codice_fiscale\" , \"Sconto\" FROM \"Cliente\"  where \"Nome\" like 'N%'");
 
 			while (rs.next()) {
-				String Name = rs.getString("Codice_fiscale");
-				System.out.println(Name + "     ");
+				String cod_fisc = rs.getString("Codice_fiscale");
+				int sconto = rs.getInt("Sconto");
+				System.out.println(cod_fisc + " " + sconto + " -Tipo 1 ");
 			}
 			rs.close();
 

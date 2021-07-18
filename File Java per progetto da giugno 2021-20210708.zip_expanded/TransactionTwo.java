@@ -35,17 +35,22 @@ class TransactionTwo extends Thread {
 		System.out.println(
 				"+++++++++************************************************************************++++++++++++");
 		System.out.println("transaction " + id + " started");
-
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		// replace this with a transaction
 		try {
 			conn.setAutoCommit(false);
-			conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+			conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 			System.out.println("Transaction " + id + " Isolation Level: " + conn.getTransactionIsolation());
 			Statement st1 = conn.createStatement();
 			int i = st1.executeUpdate(
 					"INSERT INTO \"Cliente\"(\"Nome\" , \"Cognome\" , \"Codice_fiscale\" , \"Sconto\" , \"Note\") VALUES ('Nicolo','Guai','GNZNCL27','30','Ok')");
 			if (i == 1) {
-				System.out.println("Insert riuscita");
+				System.out.println("Insert riuscita (transazione tipo 2) ");
 			}
 
 			Statement st2 = conn.createStatement();
@@ -53,17 +58,16 @@ class TransactionTwo extends Thread {
 					.executeQuery("Select \"Nome\",\"Codice_fiscale\" From \"Cliente\" where  \"Nome\" like 'N%' ");
 
 			while (rs.next()) {
-				String Name = rs.getString("Nome");
 				String CodFisc = rs.getString("Codice_fiscale");
-
-				System.out.println(Name + " " + CodFisc + "     ");
+				String Name = rs.getString("Nome");
+				System.out.println(Name + " " + CodFisc + " -Tipo 2 ");
 			}
 			rs.close();
 
 			Statement st3 = conn.createStatement();
 			int test = st3.executeUpdate("Delete From \"Cliente\" Where \"Codice_fiscale\" = 'GNZNCL27' ");
 			if (test == 1) {
-				System.out.println("Delete riuscita");
+				System.out.println("Delete riuscita (Transazione tipo 2)");
 			}
 
 			System.out.println(

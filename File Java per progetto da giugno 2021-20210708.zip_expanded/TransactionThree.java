@@ -47,33 +47,37 @@ class TransactionThree extends Thread {
 		// replace this with a transaction
 		try {
 			conn.setAutoCommit(false);
-			conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+			conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 			System.out.println("Transaction " + id + " Isolation Level: " + conn.getTransactionIsolation());
 			Statement st1 = conn.createStatement();
 			int i = st1.executeUpdate(
 					"INSERT INTO \"Vendite\" ( \"Codice_fiscale\" , \"Data\" , \"Quantità\", \"Tipo\" , \"Marca\") VALUES ('GNZNCL27','2021-07-18', 40 ,'Pasta', 'rummo')");
 			if (i == 1) {
-				System.out.println("Insert riuscita");
+				System.out.println("Insert riuscita (transazione tipo 3)");
 			}
 
 			Statement st2 = conn.createStatement();
 			st2.executeUpdate("UPDATE \"Cliente\" Set \"Sconto\" = 30 Where \"Nome\" Like 'Nic%'");
-
+			System.out.println("Database updated successfully (transazione tipo 3 update numero 1) ");
+			
+			Thread.sleep(1000);
+			
 			Statement st3 = conn.createStatement();
 			int test = st3.executeUpdate("Delete From \"Vendite\" Where \"Codice_fiscale\" = 'GNZNCL27' ");
 			if (test == 1) {
-				System.out.println("Delete riuscita");
+				System.out.println("Delete riuscita (transazione tipo 3 )");
 			}
 
 			Statement st4 = conn.createStatement();
 			st4.executeUpdate("UPDATE \"Cliente\" Set \"Sconto\" = 10 Where \"Nome\" Like 'Nic%'");
+			System.out.println("Database updated successfully (transazione tipo 3 update numero 2) ");
 
 			System.out.println(
 					"+++++++++************************************************************************++++++++++++");
 
 			conn.commit();
 			conn.close();
-		} catch (SQLException e1) {
+		} catch (SQLException | InterruptedException e1) {
 			e1.printStackTrace();
 
 			try {
