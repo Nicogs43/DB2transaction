@@ -5,7 +5,7 @@ Adattato da Nikolas Augsten
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import java.util.concurrent.TimeUnit;
 import java.sql.*;
 
 /** 
@@ -15,43 +15,86 @@ import java.sql.*;
 
 
 
-class Transaction extends Thread {
+class TransactionOne extends Thread {
 
 	// identifier of the transaction
 	int id;
 	Connection conn;
 	
-	Transaction(int id, Connection conn) {
+	TransactionOne(int id, Connection conn) {
 		this.id = id;
 		this.conn = conn;
 	}
 	
 	@Override
 	public void run() {
+		 	String url = "jdbc:postgresql://127.0.0.1:5432/ProgettoDB2"; 
+		    String user ="postgres"; 
+		    String pass ="Nicogs43"; 
+		    
+		    try{  
+		        Class.forName("org.postgresql.Driver"); 
+		        conn = DriverManager.getConnection(url, user, pass);
+		        //PreparedStatement st = conn.prepareStatement("set search_path to account");
+		       // st.executeUpdate();
+		        }catch(SQLException se){  
+		      se.printStackTrace();  
+		   }catch(Exception e){  
+		      e.printStackTrace();  
+		   }  
 		System.out.println("transaction " + id + " started");
 
 		// replace this with a transaction
-		int ms = (int)(Math.random()*100);
-		try {
-			sleep(ms);
-		} catch (Exception e) {};
-		// end of portion to be replaced				
-	     
-        
-        
-	  /********** CODICE DA MODIFICARE PER REALIZZARE EFFETTIVE TRANSAZIONI *************
-                    try{  
-	            // PreparedStatement st1 = conn.prepareStatement("ADD YOUR STATEMENT HERE");
-	            // st1.executeUpdate();     SE LO STATEMENT E' UN UPDATE
-	            // st1.executeQuery();       SE LO STATEMENT E' UNA QUERY
-	       		 }catch(SQLException se){   
-	      		se.printStackTrace();  
-	     		 }catch(Exception e){    
-	     		 e.printStackTrace();  
-	     		 }  
-	*************************************************************************************/
-		
-		
+        try{  
+        	conn.setAutoCommit(false);
+            Statement st1 = conn.createStatement();
+            ResultSet rs = st1.executeQuery("SELECT \"Codice_fiscale\" , \"Nome\" FROM \"Cliente\" where \"Nome\" like 'Nico%'");
+            
+            while (rs.next()) {
+                String codFisc = rs.getString("Codice_fiscale");
+                String Name = rs.getString("Nome");
+                System.out.println(codFisc +" "+ Name + "     ");
+            }
+            rs.close();
+            
+            Statement st2 = conn.createStatement();
+            rs = st2.executeQuery("SELECT \"Codice_fiscale\"  FROM \"Vendite\" Where \"Codice_fiscale\" like 'NI%' ");
+           
+           while (rs.next()) {
+               String Name = rs.getString("Codice_fiscale");
+               System.out.println(Name + "     ");
+           }
+           rs.close();
+           
+           Statement st3 = conn.createStatement();
+           rs = st3.executeQuery("SELECT \"Codice_fiscale\" FROM \"Cliente\"  where \"Nome\" like 'N%'");
+           
+           while (rs.next()) {
+               String Name = rs.getString("Codice_fiscale");
+               System.out.println(Name + "     ");
+           }
+           rs.close();
+           
+            
+            System.out.println("*******************************************************************");
+            
+        	conn.commit();
+    		conn.close();
+    	 }catch (SQLException e1) {
+    		 e1.printStackTrace();
+    	 
+    		try{
+    			if (conn != null) 
+    				conn.rollback();
+    			} catch (SQLException e) {
+    			 		while( e!=null){ 
+    						System.out.println("SQLState: " + e.getSQLState());
+    						System.out.println("    Code: " + e.getErrorCode());
+    						System.out.println(" Message: " + e.getMessage());
+    						e = e.getNextException();
+    						}	}
+    	 }
+		// end of portion to be replaced						
 		System.out.println("transaction " + id + " terminated");
 	}	
 	
@@ -69,26 +112,11 @@ public class ConcurrentTransactions {
 
 	public static void main(String[] args) {
 
-        /*********************
-        *  CODICE DA MODIFICARE CON VOSTRI DATI PER CONNESSIONE
+        // CODICE DA MODIFICARE CON VOSTRI DATI PER CONNESSIONE
 
-            String url = "jdbc:postgresql://10.251.153.37:5432/YOUR_DBNAME"; 
-	    String user ="YOUR_USERNAME"; 
-	    String pass ="YOUR_PASSWORD"; 
-
+      
 	    Connection conn = null;
 		
-	    try{  
-	        Class.forName("org.postgresql.Driver"); 
-	        conn = DriverManager.getConnection(url, user, pass);
-	        PreparedStatement st = conn.prepareStatement("set search_path to account");
-	        st.executeUpdate();
-	        }catch(SQLException se){  
-	      se.printStackTrace();  
-	   }catch(Exception e){  
-	      e.printStackTrace();  
-	   }  
-         *******************/
 
 		// read command line parameters
 		if (args.length != 2) {
@@ -99,20 +127,18 @@ public class ConcurrentTransactions {
 		int maxConcurrent = Integer.parseInt(args[1]);
 
 		// create numThreads transactions
-		Transaction[] trans = new Transaction[numThreads];
-		for (int i = 0; i < trans.length; i++) {
-			trans[i] = new Transaction(i + 1,conn);
-		}
+		TransactionOne trans1 = new TransactionOne(1 , conn);
+		Runnable trans =trans1;
+		
 
 		// start all transactions using a connection pool 
 		ExecutorService pool = Executors.newFixedThreadPool(maxConcurrent);				
-		for (int i = 0; i < trans.length; i++) {
-			pool.execute(trans[i]);
-		}		
+		pool.execute(trans1);
+		//pool.execute
 		pool.shutdown(); // end program after all transactions are done	
 
-                /**************************************
-                CHIUSURA CONNESSIONE
+               
+                //CHIUSURA CONNESSIONE
 		try {
 			if (!pool.awaitTermination(10,TimeUnit.SECONDS))
 			 {
@@ -128,7 +154,7 @@ public class ConcurrentTransactions {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} 
-                **************************************/
+                
 	}
 }
 
