@@ -27,7 +27,7 @@ public class ConcurrentTransactions {
 		int numThreads = Integer.parseInt(args[0]);
 		int maxConcurrent = Integer.parseInt(args[1]);
 
-		// create numThreads transactions
+		// create numThreads transaction
 		TransactionOne trans1 = new TransactionOne(1 , conn);
 		TransactionTwo trans2 = new TransactionTwo(2 , conn);
 		
