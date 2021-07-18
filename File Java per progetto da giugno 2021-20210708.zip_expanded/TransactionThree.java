@@ -13,7 +13,7 @@ import java.sql.Statement;
  */
 class TransactionThree extends Thread {
 
-	// identifier of the transaction
+	// identifier of the transactions
 	int id;
 	Connection conn;
 	

@@ -6,7 +6,7 @@ import java.sql.Statement;
 
 class TransactionOne extends Thread {
 
-	// identifier of the transaction
+	// identifier of the transactions
 	int id;
 	Connection conn;
 	
