@@ -13,6 +13,8 @@ import java.sql.*;
  * (up to 100ms) and finally prints a status message at termination.
  */
 
+
+
 class Transaction extends Thread {
 
 	// identifier of the transaction
