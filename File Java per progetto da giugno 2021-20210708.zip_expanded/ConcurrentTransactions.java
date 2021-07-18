@@ -4,6 +4,7 @@ Adattato da Nikolas Augsten
  */
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -12,13 +13,9 @@ import java.sql.*;
 public class ConcurrentTransactions {
 
 	public static void main(String[] args) {
-
-        // CODICE DA MODIFICARE CON VOSTRI DATI PER CONNESSIONE
-
       
 	    Connection conn = null;
 		
-
 		// read command line parameters
 		if (args.length != 2) {
 			System.err.println("params: numThreads maxConcurrent");
@@ -28,55 +25,59 @@ public class ConcurrentTransactions {
 		int maxConcurrent = Integer.parseInt(args[1]);
 
 		// create numThreads transaction
-		TransactionOne trans1 = new TransactionOne(1 , conn);
-		TransactionTwo trans2 = new TransactionTwo(2 , conn);
+
+		ArrayList<Runnable> trans = getClientList(conn, numThreads);
 		
+		// start all transactions using a connection pool 
+		ExecutorService pool = Executors.newFixedThreadPool(maxConcurrent);				
+		for (Iterator<Runnable> iterator = trans.iterator(); iterator.hasNext();) {
+			Runnable i = iterator.next();
+			pool.execute(i);
+		}
+		pool.shutdown();
+			//CHIUSURA CONNESSIONE
+			try {
+				if (!pool.awaitTermination(10,TimeUnit.SECONDS))
+				 {
+				    pool.shutdownNow();
+			                    try{  
+									conn.close();
+				    }catch(SQLException se){  
+			                       se.printStackTrace();  
+			                       }catch(Exception e){  
+			                              e.printStackTrace();  
+			                       } 
+				 }
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+	public static ArrayList<Runnable> getClientList(Connection conn, int numThreads) {
 		ArrayList<Runnable> trans = new ArrayList<Runnable>();
-		boolean a,b=true;
+		boolean a=true ;
+		boolean	b=true;
 		for (int i=0; i<numThreads; i++) {
 			if(a) {
-				trans.add(new TransactionOne(1 , conn));
+				trans.add(new TransactionOne(i , conn));
 				a=false;
 			}
 			else {
 				if (b) {
 					b=false;
-					trans.add(new TransactionTwo(1 , conn));
+					trans.add(new TransactionTwo(i, conn));
 				}
 				else {
-					trans.add(new TransactionThree(1 , conn));
+					trans.add(new TransactionThree(i, conn));
 					a=true;
 					b=true;
 				}
 			}
 			
 		}
-		
-
-		// start all transactions using a connection pool 
-		ExecutorService pool = Executors.newFixedThreadPool(maxConcurrent);				
-		pool.execute(trans1);
-		pool.execute(trans2);
-		pool.shutdown(); // end program after all transactions are done	
-
-               
-                //CHIUSURA CONNESSIONE
-		try {
-			if (!pool.awaitTermination(10,TimeUnit.SECONDS))
-			 {
-			    pool.shutdownNow();
-                            try{  
-				conn.close(); 
-			    }catch(SQLException se){  
-	                           se.printStackTrace();  
-	                           }catch(Exception e){  
-	                                  e.printStackTrace();  
-	                           } 
-			 }
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} 
+		return trans;
+	} 
                 
 	}
-}
+
 
