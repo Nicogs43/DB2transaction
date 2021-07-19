@@ -34,7 +34,7 @@ class TransactionTwo extends Thread {
 
 		System.out.println(
 				"+++++++++************************************************************************++++++++++++");
-		System.out.println("transaction " + id + " started");
+		System.out.println("transaction " + id + " started" + " (Transazione tipo 2)");
 	
 		// replace this with a transaction
 		try {
@@ -87,7 +87,7 @@ class TransactionTwo extends Thread {
 			}
 		}
 		// end of portion to be replaced
-		System.out.println("transaction " + id + " terminated");
+		System.out.println("transaction " + id + " terminated" + " (Transazione tipo 2) ");
 	}
 
 }
