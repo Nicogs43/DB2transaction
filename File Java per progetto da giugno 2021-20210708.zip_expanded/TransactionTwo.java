@@ -35,14 +35,10 @@ class TransactionTwo extends Thread {
 		System.out.println(
 				"+++++++++************************************************************************++++++++++++");
 		System.out.println("transaction " + id + " started");
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+	
 		// replace this with a transaction
 		try {
+			Thread.sleep(1000);
 			conn.setAutoCommit(false);
 			conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 			System.out.println("Transaction " + id + " Isolation Level: " + conn.getTransactionIsolation());
@@ -75,7 +71,7 @@ class TransactionTwo extends Thread {
 
 			conn.commit();
 			conn.close();
-		} catch (SQLException e1) {
+		} catch (SQLException | InterruptedException e1) {
 			e1.printStackTrace();
 
 			try {
